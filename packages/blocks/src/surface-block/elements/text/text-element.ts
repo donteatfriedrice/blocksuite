@@ -19,6 +19,7 @@ import {
   getTextWidth,
   isRTL,
   splitIntoLines,
+  wrapText,
 } from './utils.js';
 @RectElement
 export class TextElement extends SurfaceElement<IText> {
@@ -85,6 +86,7 @@ export class TextElement extends SurfaceElement<IText> {
 
   getCursorByCoord(coord: IModelCoord) {
     const { text } = this;
+    console.log('text: ', text.toString());
     const [lineIndex, offsetX] = this.getTextCursorPosition(coord);
     const lines = splitIntoLines(text.toString());
     const string = lines[lineIndex];
@@ -137,11 +139,17 @@ export class TextElement extends SurfaceElement<IText> {
     );
 
     const yText = text;
-    const deltas: ITextDelta[] = yText.toDelta() as ITextDelta[];
+    const font = this.font;
+    // const deltas: ITextDelta[] = yText.toDelta() as ITextDelta[];
+    const deltas: ITextDelta[] = (yText.toDelta() as ITextDelta[]).flatMap(
+      delta => ({
+        insert: wrapText(delta.insert, font, w),
+        attributes: delta.attributes,
+      })
+    ) as ITextDelta[];
     const lines = deltaInsertsToChunks(deltas);
 
     const lineHeightPx = getLineHeight(fontFamily, fontSize);
-    const font = this.font;
     const horizontalOffset =
       textAlign === 'center' ? w / 2 : textAlign === 'right' ? w : 0;
 
