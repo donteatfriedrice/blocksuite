@@ -173,7 +173,6 @@ export function wrapText(text: string, font: string, maxWidth: number): string {
   };
   originalLines.forEach(originalLine => {
     const currentLineWidth = getTextWidth(originalLine, font);
-
     // Push the line if its <= maxWidth
     if (currentLineWidth <= maxWidth) {
       lines.push(originalLine);
@@ -339,12 +338,14 @@ export function deltaInsertsToChunks(delta: ITextDelta[]): ITextDelta[][] {
 export function normalizeTextBound(
   text: TextElement,
   bound: Bound,
-  drag: boolean = false
+  dragging: boolean = false,
+  newFontsize?: number
 ): Bound {
   if (!text.text) return bound;
 
   const yText = text.text;
-  const { fontFamily, fontSize } = text;
+  const { fontFamily } = text;
+  const fontSize = newFontsize ?? text.fontSize;
   const lineHeightPx = getLineHeight(fontFamily, fontSize);
   const font = getFontString({
     fontSize: fontSize,
@@ -355,17 +356,25 @@ export function normalizeTextBound(
   });
 
   let lines: ITextDelta[][] = [];
-  if (drag) {
+  const deltas: ITextDelta[] = yText.toDelta() as ITextDelta[];
+  if (dragging) {
+    const widestCharWidth =
+      [...yText.toString()]
+        .map(char => getTextWidth(char, font))
+        .sort((a, b) => a - b)
+        .pop() ?? getTextWidth('W', font);
+
+    if (bound.w < widestCharWidth) {
+      bound.w = widestCharWidth;
+    }
+
     const width = bound.w;
-    const deltas: ITextDelta[] = (yText.toDelta() as ITextDelta[]).flatMap(
-      delta => ({
-        insert: wrapText(delta.insert, font, width),
-        attributes: delta.attributes,
-      })
-    ) as ITextDelta[];
-    lines = deltaInsertsToChunks(deltas);
+    const insertDeltas = deltas.flatMap(delta => ({
+      insert: wrapText(delta.insert, font, width),
+      attributes: delta.attributes,
+    })) as ITextDelta[];
+    lines = deltaInsertsToChunks(insertDeltas);
   } else {
-    const deltas: ITextDelta[] = yText.toDelta() as ITextDelta[];
     lines = deltaInsertsToChunks(deltas);
     const widestLineWidth = Math.max(
       ...yText

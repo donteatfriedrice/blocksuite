@@ -51,6 +51,10 @@ export class TextElement extends SurfaceElement<IText> {
     return this.yMap.get('italic') as IText['italic'];
   }
 
+  get maxWidth() {
+    return this.yMap.get('maxWidth') as IText['maxWidth'];
+  }
+
   get font() {
     const { bold, italic, fontSize, fontFamily } = this;
     const lineHeight = getLineHeight(fontFamily, fontSize);
@@ -86,7 +90,6 @@ export class TextElement extends SurfaceElement<IText> {
 
   getCursorByCoord(coord: IModelCoord) {
     const { text } = this;
-    console.log('text: ', text.toString());
     const [lineIndex, offsetX] = this.getTextCursorPosition(coord);
     const lines = splitIntoLines(text.toString());
     const string = lines[lineIndex];

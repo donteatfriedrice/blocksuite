@@ -444,14 +444,22 @@ export class EdgelessSelectedRect extends WithDisposable(LitElement) {
             direction === HandleDirection.Right
           ) {
             bound = normalizeTextBound(element, bound, true);
+            // If the width if the text element has been changed by dragging,
+            // We need to set maxWidth for it to wrap the text
+            surface.updateElement(id, {
+              xywh: bound.serialize(),
+              fontSize: element.fontSize * p,
+              maxWidth: bound.w,
+            });
           } else {
             p = bound.h / element.h;
+            // const newFontsize = element.fontSize * p;
+            // bound = normalizeTextBound(element, bound, false, newFontsize);
+            surface.updateElement(id, {
+              xywh: bound.serialize(),
+              fontSize: element.fontSize * p,
+            });
           }
-
-          surface.updateElement(id, {
-            xywh: bound.serialize(),
-            fontSize: element.fontSize * p,
-          });
         } else {
           if (element instanceof ShapeElement) {
             bound = normalizeShapeBound(element, bound);
