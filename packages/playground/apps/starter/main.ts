@@ -13,6 +13,7 @@ import type { DocProvider, Page } from '@blocksuite/store';
 import { Job, Workspace } from '@blocksuite/store';
 
 import { CustomCopilotPanel } from './components/copilot/custom-copilot-panel.js';
+import { CustomFramePanel } from './components/custom-frame-panel.js';
 import { CustomNavigationPanel } from './components/custom-navigation-panel.js';
 import { DebugMenu } from './components/debug-menu.js';
 import type { InitFn } from './data';
@@ -46,6 +47,7 @@ function subscribePage(workspace: Workspace) {
     const debugMenu = new DebugMenu();
     const navigationPanel = new CustomNavigationPanel();
     const copilotPanel = new CustomCopilotPanel();
+    const framePanel = new CustomFramePanel();
 
     debugMenu.workspace = workspace;
     debugMenu.editor = editor;
@@ -53,13 +55,16 @@ function subscribePage(workspace: Workspace) {
     debugMenu.contentParser = contentParser;
     debugMenu.navigationPanel = navigationPanel;
     debugMenu.copilotPanel = copilotPanel;
+    debugMenu.framePanel = framePanel;
 
     navigationPanel.editor = editor;
     copilotPanel.editor = editor;
+    framePanel.editor = editor;
 
     document.body.appendChild(debugMenu);
     document.body.appendChild(navigationPanel);
     document.body.appendChild(copilotPanel);
+    document.body.appendChild(framePanel);
 
     window.editor = editor;
     window.page = page;
