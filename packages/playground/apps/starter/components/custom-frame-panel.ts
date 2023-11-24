@@ -33,7 +33,7 @@ export class CustomFramePanel extends WithDisposable(LitElement) {
   editor!: EditorContainer;
 
   private _renderPanel() {
-    return html`<frames-panel></frames-panel>`;
+    return html`<frames-panel .page=${this.page}></frames-panel>`;
   }
 
   public toggleDisplay() {

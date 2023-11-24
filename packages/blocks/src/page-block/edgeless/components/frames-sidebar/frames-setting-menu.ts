@@ -1,5 +1,6 @@
 import '../../../../_common/components/menu-divider.js';
 
+// import '../../../../_common/components/toggle-switch.js';
 import { WithDisposable } from '@blocksuite/lit';
 import { css, html, LitElement } from 'lit';
 
@@ -62,9 +63,10 @@ const styles = css`
   }
 
   .frames-setting-menu-item .toggle-button {
+    display: flex;
     width: 38px;
     height: 20px;
-    background: var(--affine-border-color);
+    background: var(--affine-icon-color);
   }
 
   menu-divider {
