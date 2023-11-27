@@ -59,23 +59,25 @@ export class NoteResizeObserver {
     const unCachedKeys = new Set(this._cachedElements.keys());
     page.root?.children.forEach(model => {
       if (!matchFlavours(model, ['affine:note'])) return;
+
       const blockId = model.id;
       unCachedKeys.delete(blockId);
       const blockElement = getBlockElementByModel(model);
       const container = blockElement?.querySelector(
         '.affine-note-block-container'
       );
-
+      const { edgeless } = model;
+      const collapse = edgeless ? edgeless.collapse : false;
       const cachedElement = this._cachedElements.get(blockId);
       if (cachedElement) {
-        if (container === cachedElement) {
+        if (container === cachedElement && !collapse) {
           return;
         }
         this._observer.unobserve(cachedElement);
         this._cachedElements.delete(blockId);
       }
 
-      if (!container) return;
+      if (!container || collapse) return;
       this._lastRects.set(blockId, container.getBoundingClientRect());
       this._observer.observe(container);
       this._cachedElements.set(blockId, container);
