@@ -1,4 +1,5 @@
 import '../../../../_common/components/menu-divider.js';
+import '../../../../_common/components/toggle-switch.js';
 
 // import '../../../../_common/components/toggle-switch.js';
 import { WithDisposable } from '@blocksuite/lit';
@@ -64,9 +65,6 @@ const styles = css`
 
   .frames-setting-menu-item .toggle-button {
     display: flex;
-    width: 38px;
-    height: 20px;
-    background: var(--affine-icon-color);
   }
 
   menu-divider {
@@ -87,7 +85,7 @@ export class FramesSettingMenu extends WithDisposable(LitElement) {
       </div>
       <div class="frames-setting-menu-item action">
         <div class="action-label">Fill Screen</div>
-        <div class="toggle-button"></div>
+        <div class="toggle-button"><toggle-switch></toggle-switch></div>
       </div>
 
       <menu-divider></menu-divider>
@@ -97,7 +95,7 @@ export class FramesSettingMenu extends WithDisposable(LitElement) {
       </div>
       <div class="frames-setting-menu-item action">
         <div class="action-label">Hide toolbar while presenting</div>
-        <div class="toggle-button"></div>
+        <div class="toggle-button"><toggle-switch></toggle-switch></div>
       </div>
     </div>`;
   }

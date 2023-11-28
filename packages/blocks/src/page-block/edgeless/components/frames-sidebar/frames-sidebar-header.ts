@@ -3,12 +3,14 @@ import './frames-setting-menu.js';
 
 import { WithDisposable } from '@blocksuite/lit';
 import { css, html, LitElement } from 'lit';
-import { query, state } from 'lit/decorators.js';
+import { property, query, state } from 'lit/decorators.js';
 
 import {
   SettingsIcon,
   SmallFrameNavigatorIcon,
 } from '../../../../_common/icons/edgeless.js';
+import type { EdgelessTool } from '../../../../_common/utils/types.js';
+import type { EdgelessPageBlockComponent } from '../../edgeless-page-block.js';
 import { createButtonPopper } from '../utils.js';
 
 const styles = css`
@@ -88,6 +90,9 @@ const styles = css`
 export class FramesSidebarHeader extends WithDisposable(LitElement) {
   static override styles = styles;
 
+  @property({ attribute: false })
+  edgeless!: EdgelessPageBlockComponent;
+
   @state()
   private _settingPopperShow = false;
 
@@ -101,8 +106,12 @@ export class FramesSidebarHeader extends WithDisposable(LitElement) {
     typeof createButtonPopper
   > | null = null;
 
+  setEdgelessTool = (edgelessTool: EdgelessTool) => {
+    this.edgeless.tools.setEdgelessTool(edgelessTool);
+  };
+
   private _enterPresentationMode = () => {
-    console.log('enter presentation mode');
+    this.setEdgelessTool({ type: 'frameNavigator' });
   };
 
   override firstUpdated() {

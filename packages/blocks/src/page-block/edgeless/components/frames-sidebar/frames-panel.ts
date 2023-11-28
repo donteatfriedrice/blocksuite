@@ -1,26 +1,24 @@
 import './frames-sidebar-header.js';
+import './frames-sidebar-body.js';
 
 import { WithDisposable } from '@blocksuite/lit';
-import { type Page } from '@blocksuite/store';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 
-// import { ToggleSwitch } from '../../../../_common/components/toggle-switch.js';
+import { ToggleSwitch } from '../../../../_common/components/toggle-switch.js';
+import type { EdgelessPageBlockComponent } from '../../edgeless-page-block.js';
+import { FrameCard } from './frame-card.js';
+import { FrameCardTitleEditor } from './frame-card-title-editor.js';
 import { FramesSettingMenu } from './frames-setting-menu.js';
+import { FramesSidebarBody } from './frames-sidebar-body.js';
 import { FramesSidebarHeader } from './frames-sidebar-header.js';
 
 const styles = css`
-  :host {
+  .frames-panel-container {
     display: flex;
     flex-direction: column;
     width: 284px;
     height: 100%;
-  }
-
-  .frames-sidebar-body {
-    width: 284px;
-    height: 2000px;
-    background: var(--affine-black-10);
   }
 `;
 
@@ -28,15 +26,18 @@ export class FramesPanel extends WithDisposable(LitElement) {
   static override styles = styles;
 
   @property({ attribute: false })
-  page!: Page;
-
-  get edgeless() {
-    return this.ownerDocument.querySelector('affine-edgeless-page');
-  }
+  edgeless: EdgelessPageBlockComponent | null = null;
 
   override render() {
-    return html`<frames-sidebar-header></frames-sidebar-header>
-      <div class="frames-sidebar-body"></div>`;
+    if (!this.edgeless) return nothing;
+
+    return html`<div class="frames-panel-container">
+      <frames-sidebar-header .edgeless=${this.edgeless}></frames-sidebar-header>
+      <frames-sidebar-body
+        .edgeless=${this.edgeless}
+        .fitPadding=${[50, 300, 50, 50]}
+      ></frames-sidebar-body>
+    </div>`;
   }
 }
 
@@ -49,8 +50,11 @@ declare global {
 const componentsMap = {
   'frames-panel': FramesPanel,
   'frames-sidebar-header': FramesSidebarHeader,
+  'frames-sidebar-body': FramesSidebarBody,
   'frames-setting-menu': FramesSettingMenu,
-  // 'toggle-switch': ToggleSwitch,
+  'frame-card': FrameCard,
+  'frame-card-title-editor': FrameCardTitleEditor,
+  'toggle-switch': ToggleSwitch,
 };
 
 export function registerFramesSidebarComponents(

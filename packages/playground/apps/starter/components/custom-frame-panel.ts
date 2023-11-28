@@ -1,7 +1,6 @@
 import { registerFramesSidebarComponents } from '@blocksuite/blocks';
 import type { EditorContainer } from '@blocksuite/editor';
 import { WithDisposable } from '@blocksuite/lit';
-import type { Page } from '@blocksuite/store';
 import { css, html, LitElement, nothing } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
@@ -27,13 +26,17 @@ export class CustomFramePanel extends WithDisposable(LitElement) {
   private _show = false;
 
   @property({ attribute: false })
-  page!: Page;
-
-  @property({ attribute: false })
   editor!: EditorContainer;
 
+  get edgeless() {
+    return this.editor.querySelector('affine-edgeless-page');
+  }
+
   private _renderPanel() {
-    return html`<frames-panel .page=${this.page}></frames-panel>`;
+    return html`<frames-panel
+      .edgeless=${this.edgeless}
+      .fitPadding=${[50, 300, 50, 50]}
+    ></frames-panel>`;
   }
 
   public toggleDisplay() {
@@ -42,13 +45,16 @@ export class CustomFramePanel extends WithDisposable(LitElement) {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.page = this.editor.page;
 
     registerFramesSidebarComponents(components => {
       Object.entries(components).forEach(([name, component]) => {
         customElements.define(name, component);
       });
     });
+
+    this.disposables.add(
+      this.editor.slots.pageModeSwitched.on(() => this.requestUpdate())
+    );
   }
 
   override render() {
