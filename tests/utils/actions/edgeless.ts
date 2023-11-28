@@ -54,21 +54,18 @@ export enum Shape {
   'Rounded rectangle' = 'Rounded rectangle',
 }
 
-export async function getNoteRect(
-  page: Page,
-  ids: { pageId: string; noteId: string; paragraphId: string }
-) {
+export async function getNoteRect(page: Page, noteId: string) {
   const xywh: string | null = await page.evaluate(
-    ([id]) => {
+    ([noteId]) => {
       const page = window.workspace.getPage('page:home');
-      const block = page?.getBlockById(id.noteId);
+      const block = page?.getBlockById(noteId);
       if (block?.flavour === 'affine:note') {
         return (block as NoteBlockModel).xywh;
       } else {
         return null;
       }
     },
-    [ids] as const
+    [noteId] as const
   );
   expect(xywh).not.toBeNull();
   const [x, y, w, h] = JSON.parse(xywh as string);
@@ -1185,7 +1182,7 @@ export async function getGroupChildrenIds(page: Page, index = 0) {
   );
 }
 
-export async function getPhasorElementsCount(page: Page) {
+export async function getCanvasElementsCount(page: Page) {
   return await page.evaluate(() => {
     const container = document.querySelector('affine-edgeless-page');
     if (!container) throw new Error('container not found');

@@ -34,11 +34,12 @@ import type {
 import type { JSXElement } from '../../packages/store/src/utils/jsx.js';
 import type { VirgoRootElement } from '../../packages/virgo/src/index.js';
 import {
+  getCanvasElementsCount,
   getConnectorPath,
   getEdgelessSelectedRectModel,
   getGroupChildrenIds,
   getGroupIds,
-  getPhasorElementsCount,
+  getNoteRect,
   getSelectedBound,
   getSortedIdsInViewport,
   getZoomLevel,
@@ -774,6 +775,15 @@ export function assertSameColor(c1?: `#${string}`, c2?: `#${string}`) {
 
 type Rect = { x: number; y: number; w: number; h: number };
 
+export async function assertNoteRectEqual(
+  page: Page,
+  noteId: string,
+  expected: Rect
+) {
+  const rect = await getNoteRect(page, noteId);
+  assertRectEqual(rect, expected);
+}
+
 export function assertRectEqual(a: Rect, b: Rect) {
   expect(a.x).toBeCloseTo(b.x, 0);
   expect(a.y).toBeCloseTo(b.y, 0);
@@ -947,8 +957,8 @@ export async function assertGroupChildrenIds(
   expect(ids).toEqual(expected);
 }
 
-export async function assertPhasorElementsCount(page: Page, expected: number) {
-  const number = await getPhasorElementsCount(page);
+export async function assertCanvasElementsCount(page: Page, expected: number) {
+  const number = await getCanvasElementsCount(page);
   expect(number).toEqual(expected);
 }
 

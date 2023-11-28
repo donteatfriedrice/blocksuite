@@ -136,10 +136,8 @@ export class EdgelessBlockPortalNote extends EdgelessPortalBase<NoteBlockModel> 
   }
 
   private get _isShowCollapsedContent() {
-    const edgeless = this.model.edgeless;
-    const collapse = edgeless ? edgeless.collapse : false;
     return (
-      collapse &&
+      this.model.edgeless.collapse &&
       (this._isResizing || this._isHover) &&
       this.edgeless.selectionManager.elements.includes(this.model)
     );
@@ -180,13 +178,11 @@ export class EdgelessBlockPortalNote extends EdgelessPortalBase<NoteBlockModel> 
 
   override render() {
     const { model, surface, index } = this;
+    const { zoom } = surface.viewport;
     const { xywh, background, hidden, edgeless } = model;
-    const borderRadius = edgeless ? edgeless.style.borderRadius : 8;
-    const borderSize = edgeless ? edgeless.style.borderSize : 4;
-    const borderStyle = edgeless ? edgeless.style.borderStyle : 'solid';
-    const shadowType = edgeless ? edgeless.style.shadowType : 'none';
-    const collapse = edgeless ? edgeless.collapse : false;
-
+    const { borderRadius, borderSize, borderStyle, shadowType } =
+      edgeless.style;
+    const { collapse } = edgeless;
     const bound = Bound.deserialize(xywh);
 
     const style = {
@@ -194,7 +190,9 @@ export class EdgelessBlockPortalNote extends EdgelessPortalBase<NoteBlockModel> 
       zIndex: `${index}`,
       width: `${bound.w}px`,
       height: collapse ? `${bound.h}px` : 'inherit',
-      transform: `translate(${bound.x}px, ${bound.y}px)`,
+      transform: `translate(${bound.x * zoom}px, ${
+        bound.y * zoom
+      }px) scale(${zoom})`,
       padding: `${EDGELESS_BLOCK_CHILD_PADDING}px`,
       boxSizing: 'border-box',
       borderRadius: borderRadius + 'px',
