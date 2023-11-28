@@ -43,8 +43,6 @@ const styles = css`
 
   .frames-setting-container {
     display: none;
-    width: 270px;
-    height: 144px;
     justify-content: center;
     align-items: center;
     background: var(--affine-background-overlay-panel-color);

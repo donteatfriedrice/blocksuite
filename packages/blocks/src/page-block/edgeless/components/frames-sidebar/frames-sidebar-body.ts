@@ -72,7 +72,7 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
   private _updateFrames() {
     this._frames = this.edgeless.surface.frame.frames.sort(
       this.edgeless.surface.compare
-    );
+    ) as FrameBlockModel[];
   }
 
   private _selectFrame(e: SelectEvent) {
@@ -131,7 +131,9 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
   override connectedCallback() {
     super.connectedCallback();
     const { surface, page } = this.edgeless;
-    this._frames = surface.frame.frames.sort(surface.compare);
+    this._frames = surface.frame.frames.sort(
+      surface.compare
+    ) as FrameBlockModel[];
 
     const { disposables } = this;
     disposables.add(

@@ -10,16 +10,16 @@ import { stopPropagation } from '../../../../_common/utils/event.js';
 const styles = css`
   :host {
     display: block;
-    width: 100%;
-    height: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    width: 290px;
   }
 
   .frames-setting-menu-container {
     display: flex;
     flex-direction: column;
-    width: 254px;
-    height: 128px;
-    padding: 8px;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .frames-setting-menu-item {
@@ -53,7 +53,7 @@ const styles = css`
   }
 
   .frames-setting-menu-item .action-label {
-    width: 180px;
+    width: 204px;
     height: 20px;
     padding: 0 4px;
     font-family: sans-serif;
@@ -95,6 +95,10 @@ export class FramesSettingMenu extends WithDisposable(LitElement) {
       </div>
       <div class="frames-setting-menu-item action">
         <div class="action-label">Hide toolbar while presenting</div>
+        <div class="toggle-button"><toggle-switch></toggle-switch></div>
+      </div>
+      <div class="frames-setting-menu-item action">
+        <div class="action-label">Hide background while presenting</div>
         <div class="toggle-button"><toggle-switch></toggle-switch></div>
       </div>
     </div>`;
