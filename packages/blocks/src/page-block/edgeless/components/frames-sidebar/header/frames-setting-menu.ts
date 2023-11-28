@@ -1,11 +1,11 @@
-import '../../../../_common/components/menu-divider.js';
-import '../../../../_common/components/toggle-switch.js';
+import '../../../../../_common/components/menu-divider.js';
+import '../../../../../_common/components/toggle-switch.js';
 
 // import '../../../../_common/components/toggle-switch.js';
 import { WithDisposable } from '@blocksuite/lit';
 import { css, html, LitElement } from 'lit';
 
-import { stopPropagation } from '../../../../_common/utils/event.js';
+import { stopPropagation } from '../../../../../_common/utils/event.js';
 
 const styles = css`
   :host {

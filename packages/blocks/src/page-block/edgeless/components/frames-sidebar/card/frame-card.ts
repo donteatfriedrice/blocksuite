@@ -1,8 +1,10 @@
 import { WithDisposable } from '@blocksuite/lit';
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
+import { styleMap } from 'lit/directives/style-map.js';
 
-import type { FrameBlockModel } from '../../../../frame-block/frame-model.js';
+import { on, once } from '../../../../../_common/utils/event.js';
+import type { FrameBlockModel } from '../../../../../frame-block/frame-model.js';
 import { FrameCardTitleEditor } from './frame-card-title-editor.js';
 
 export type ReorderEvent = CustomEvent<{
@@ -40,6 +42,8 @@ const styles = css`
     width: 284px;
     height: 198px;
     gap: 8px;
+
+    position: relative;
   }
 
   .frame-card-title {
@@ -53,7 +57,7 @@ const styles = css`
     cursor: default;
   }
 
-  .frame-card-title .index {
+  .frame-card-title .card-index {
     display: flex;
     align-self: center;
     align-items: center;
@@ -71,7 +75,7 @@ const styles = css`
     line-height: 16px;
   }
 
-  .frame-card-title .content {
+  .frame-card-title .card-content {
     flex: 1 0 0;
     height: 20px;
     color: var(--light-text-color-text-primary-color, #121212);
@@ -95,8 +99,27 @@ const styles = css`
     cursor: pointer;
   }
 
-  .frame-card-body.selected {
+  .frame-card-container.selected .frame-card-body {
     outline: 2px solid var(--affine-blue-500);
+  }
+
+  .frame-card-container.dragging {
+    pointer-events: none;
+    transform-origin: 16px 8px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    contain: size layout paint;
+    z-index: calc(var(--affine-z-index-popover, 0) + 3);
+  }
+
+  .frame-card-container.dragging .frame-card-title {
+    display: none;
+  }
+
+  .frame-card-container.placeholder {
+    /* pointer-events: none; */
+    opacity: 0.5;
   }
 `;
 
@@ -107,20 +130,36 @@ export class FrameCard extends WithDisposable(LitElement) {
   frame!: FrameBlockModel;
 
   @property({ attribute: false })
-  index!: number;
-
-  @query('.frame-card-title .content')
-  titleElement!: HTMLElement;
+  cardIndex!: number;
 
   @property({ attribute: false })
-  status: 'selected' | 'dragging' | 'none' = 'none';
+  frameIndex!: string;
+
+  @property({ attribute: false })
+  status: 'selected' | 'dragging' | 'placeholder' | 'none' = 'none';
+
+  @property({ attribute: false })
+  stackOrder!: number;
+
+  @property({ attribute: false })
+  pos!: { x: number; y: number };
+
+  @property({ attribute: false })
+  width?: number;
+
+  @query('.frame-card-container')
+  containerElement!: HTMLElement;
+
+  @query('.frame-card-title .card-content')
+  titleElement!: HTMLElement;
 
   private _dispatchSelectEvent(e: MouseEvent) {
+    e.stopPropagation();
     const event = new CustomEvent('select', {
       detail: {
         id: this.frame.id,
         selected: this.status !== 'selected',
-        index: this.index,
+        index: this.cardIndex,
         multiselect: e.shiftKey,
       },
     }) as SelectEvent;
@@ -138,6 +177,39 @@ export class FrameCard extends WithDisposable(LitElement) {
     });
 
     this.dispatchEvent(event);
+  }
+
+  private _dispatchDragEvent(e: MouseEvent) {
+    e.preventDefault();
+
+    const { clientX: startX, clientY: startY } = e;
+    const disposeDragStart = on(this.ownerDocument, 'mousemove', e => {
+      if (
+        Math.abs(startX - e.clientX) < 5 &&
+        Math.abs(startY - e.clientY) < 5
+      ) {
+        return;
+      }
+      if (this.status !== 'selected') {
+        this._dispatchSelectEvent(e);
+      }
+
+      const event = new CustomEvent('drag', {
+        detail: {
+          clientX: e.clientX,
+          clientY: e.clientY,
+          pageX: e.pageX,
+          pageY: e.pageY,
+        },
+      });
+
+      this.dispatchEvent(event);
+      disposeDragStart();
+    });
+
+    once(this.ownerDocument, 'mouseup', () => {
+      disposeDragStart();
+    });
   }
 
   override connectedCallback() {
@@ -160,15 +232,32 @@ export class FrameCard extends WithDisposable(LitElement) {
   }
 
   override render() {
-    return html`<div class="frame-card-container">
+    const { pos, stackOrder, width } = this;
+    const containerStyle =
+      this.status === 'dragging'
+        ? styleMap({
+            transform: `${
+              stackOrder === 0
+                ? `translate(${pos.x - 16}px, ${pos.y - 8}px)`
+                : `translate(${pos.x - 10}px, ${pos.y - 16}px) scale(0.96)`
+            }`,
+            width: width ? `${width}px` : undefined,
+          })
+        : {};
+
+    return html`<div
+      class="frame-card-container ${this.status ?? ''}"
+      style=${containerStyle}
+    >
       <div class="frame-card-title">
-        <div class="index">${this.index + 1}</div>
-        <div class="content">${this.frame.title}</div>
+        <div class="card-index">${this.cardIndex + 1}</div>
+        <div class="card-content">${this.frame.title}</div>
       </div>
       <div
-        class="frame-card-body ${this.status === 'selected' ? 'selected' : ''}"
+        class="frame-card-body"
         @click=${this._dispatchSelectEvent}
         @dblclick=${this._dispatchFitViewEvent}
+        @mousedown=${this._dispatchDragEvent}
       ></div>
     </div>`;
   }

@@ -1,5 +1,5 @@
-import './frames-sidebar-header.js';
-import './frames-sidebar-body.js';
+import './header/frames-sidebar-header.js';
+import './body/frames-sidebar-body.js';
 
 import { WithDisposable } from '@blocksuite/lit';
 import { css, html, LitElement, nothing } from 'lit';
@@ -7,11 +7,11 @@ import { property } from 'lit/decorators.js';
 
 import { ToggleSwitch } from '../../../../_common/components/toggle-switch.js';
 import type { EdgelessPageBlockComponent } from '../../edgeless-page-block.js';
-import { FrameCard } from './frame-card.js';
-import { FrameCardTitleEditor } from './frame-card-title-editor.js';
-import { FramesSettingMenu } from './frames-setting-menu.js';
-import { FramesSidebarBody } from './frames-sidebar-body.js';
-import { FramesSidebarHeader } from './frames-sidebar-header.js';
+import { FramesSidebarBody } from './body/frames-sidebar-body.js';
+import { FrameCard } from './card/frame-card.js';
+import { FrameCardTitleEditor } from './card/frame-card-title-editor.js';
+import { FramesSettingMenu } from './header/frames-setting-menu.js';
+import { FramesSidebarHeader } from './header/frames-sidebar-header.js';
 
 const styles = css`
   .frames-panel-container {

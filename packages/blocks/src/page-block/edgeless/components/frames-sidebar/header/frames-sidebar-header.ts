@@ -1,4 +1,4 @@
-import '../buttons/tool-icon-button.js';
+import '../../buttons/tool-icon-button.js';
 import './frames-setting-menu.js';
 
 import { WithDisposable } from '@blocksuite/lit';
@@ -8,10 +8,10 @@ import { property, query, state } from 'lit/decorators.js';
 import {
   SettingsIcon,
   SmallFrameNavigatorIcon,
-} from '../../../../_common/icons/edgeless.js';
-import type { EdgelessTool } from '../../../../_common/utils/types.js';
-import type { EdgelessPageBlockComponent } from '../../edgeless-page-block.js';
-import { createButtonPopper } from '../utils.js';
+} from '../../../../../_common/icons/edgeless.js';
+import type { EdgelessTool } from '../../../../../_common/utils/types.js';
+import type { EdgelessPageBlockComponent } from '../../../edgeless-page-block.js';
+import { createButtonPopper } from '../../utils.js';
 
 const styles = css`
   .frames-sidebar-header {

@@ -4,8 +4,8 @@ import { html } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
-import type { RichText } from '../../../../_common/components/rich-text/rich-text.js';
-import type { FrameBlockModel } from '../../../../frame-block/frame-model.js';
+import type { RichText } from '../../../../../_common/components/rich-text/rich-text.js';
+import type { FrameBlockModel } from '../../../../../frame-block/frame-model.js';
 
 export class FrameCardTitleEditor extends WithDisposable(ShadowlessElement) {
   @query('rich-text')
