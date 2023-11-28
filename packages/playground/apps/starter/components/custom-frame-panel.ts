@@ -33,10 +33,7 @@ export class CustomFramePanel extends WithDisposable(LitElement) {
   }
 
   private _renderPanel() {
-    return html`<frames-panel
-      .edgeless=${this.edgeless}
-      .fitPadding=${[50, 300, 50, 50]}
-    ></frames-panel>`;
+    return html`<frames-panel .edgeless=${this.edgeless}></frames-panel>`;
   }
 
   public toggleDisplay() {
