@@ -6,13 +6,28 @@ import { styleMap } from 'lit/directives/style-map.js';
 
 import type { RichText } from '../../../../../_common/components/rich-text/rich-text.js';
 import type { FrameBlockModel } from '../../../../../frame-block/frame-model.js';
+import type { EdgelessPageBlockComponent } from '../../../edgeless-page-block.js';
 
 export class FrameCardTitleEditor extends WithDisposable(ShadowlessElement) {
   @query('rich-text')
   richText!: RichText;
 
   @property({ attribute: false })
+  edgeless!: EdgelessPageBlockComponent;
+
+  @property({ attribute: false })
   frameModel!: FrameBlockModel;
+
+  @property({ attribute: false })
+  titleContentElement!: HTMLElement;
+
+  @property({ attribute: false })
+  left!: number;
+
+  @property({ attribute: false })
+  maxWidth!: number;
+
+  private _isComposing = false;
 
   get vEditor() {
     assertExists(this.richText.vEditor);
@@ -31,6 +46,8 @@ export class FrameCardTitleEditor extends WithDisposable(ShadowlessElement) {
 
   override firstUpdated(): void {
     this.updateComplete.then(() => {
+      this.titleContentElement.style.display = 'none';
+
       this.vEditor.selectAll();
 
       this.vEditor.slots.updated.on(() => {
@@ -39,6 +56,15 @@ export class FrameCardTitleEditor extends WithDisposable(ShadowlessElement) {
 
       this.disposables.addFromEvent(this.vEditorContainer, 'blur', () => {
         this._unmount();
+        this.titleContentElement.style.display = 'block';
+      });
+
+      this.disposables.addFromEvent(this.vEditorContainer, 'keydown', e => {
+        e.stopPropagation();
+        if (e.key === 'Enter' && !this._isComposing) {
+          this._unmount();
+          this.titleContentElement.style.display = 'block';
+        }
       });
     });
   }
@@ -53,21 +79,20 @@ export class FrameCardTitleEditor extends WithDisposable(ShadowlessElement) {
     const virgoStyle = styleMap({
       transformOrigin: 'top left',
       borderRadius: '4px',
+      maxWidth: `${this.maxWidth}px`,
       width: 'fit-content',
-      padding: '4px 10px',
+      height: '20px',
       fontSize: '12px',
+      lineHeight: '20px',
       position: 'absolute',
-      left: '0px',
+      left: `${this.left}px`,
       top: '0px',
       minWidth: '8px',
       fontFamily: 'var(--affine-font-family)',
       background: 'var(--affine-white)',
       color: 'var(--affine-black)',
-      outline: 'none',
+      outline: '1px solid var(--affine-blue-500)',
       zIndex: '1',
-      border: `1px solid
-        var(--affine-primary-color)`,
-      boxShadow: `0px 0px 0px 2px rgba(30, 150, 235, 0.3)`,
     });
     return html`<rich-text
       .yText=${this.frameModel.title.yText}

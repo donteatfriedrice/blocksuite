@@ -46,8 +46,15 @@ const styles = css`
     flex-direction: column;
     width: 100%;
     gap: 12px;
+    position: relative;
 
     /* overflow-y: scroll; */
+  }
+
+  .no-frames-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
   }
 
   .no-frames-placeholder {
@@ -73,7 +80,7 @@ const styles = css`
     position: absolute;
     contain: layout size;
     width: 284px;
-    left: 16px;
+    left: 0;
   }
 `;
 
@@ -154,11 +161,7 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
     framesMap: Map<string, FrameListItem>,
     insertIndex: number
   ) {
-    if (
-      insertIndex !== -1 &&
-      insertIndex >= 0 &&
-      insertIndex <= this._frameItems.length - 1
-    ) {
+    if (insertIndex >= 0 && insertIndex <= this._frameItems.length) {
       const frames = Array.from(framesMap.values()).map(
         frameItem => frameItem.frame
       );
@@ -168,7 +171,7 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
         .sort(this.edgeless.surface.compare);
 
       let before = frames[insertIndex - 1]?.index || null;
-      const after = frames[insertIndex].index || null;
+      const after = frames[insertIndex]?.index || null;
       selectedFrames.forEach(frame => {
         this.edgeless.surface.updateElement(frame.id, {
           index: generateKeyBetween(before, after),
@@ -266,8 +269,10 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
   }
 
   private _renderEmptyContent() {
-    const emptyContent = html` <div class="no-frames-placeholder">
-      Add frames to organize and present your Edgeless
+    const emptyContent = html` <div class="no-frames-container">
+      <div class="no-frames-placeholder">
+        Add frames to organize and present your Edgeless
+      </div>
     </div>`;
 
     return emptyContent;
@@ -279,6 +284,7 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
       (frameItem, idx) =>
         html`<frame-card
           data-frame-id=${frameItem.frame.id}
+          .edgeless=${this.edgeless}
           .frame=${frameItem.frame}
           .cardIndex=${idx}
           .frameIndex=${frameItem.frameIndex}
@@ -301,7 +307,7 @@ export class FramesSidebarBody extends WithDisposable(LitElement) {
         ? html`<div
             class="insert-indicator"
             style="transform: translateY(${this.insertIndex *
-              this._frameElementHeight +
+              (this._frameElementHeight + 10) +
             10}px)"
           ></div>`
         : nothing}

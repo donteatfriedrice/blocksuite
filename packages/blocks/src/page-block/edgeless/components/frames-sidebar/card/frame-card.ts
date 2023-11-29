@@ -1,10 +1,11 @@
 import { WithDisposable } from '@blocksuite/lit';
-import { css, html, LitElement, nothing } from 'lit';
+import { css, html, LitElement } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { styleMap } from 'lit/directives/style-map.js';
 
 import { on, once } from '../../../../../_common/utils/event.js';
 import type { FrameBlockModel } from '../../../../../frame-block/frame-model.js';
+import type { EdgelessPageBlockComponent } from '../../../edgeless-page-block.js';
 import { FrameCardTitleEditor } from './frame-card-title-editor.js';
 
 export type ReorderEvent = CustomEvent<{
@@ -127,6 +128,9 @@ export class FrameCard extends WithDisposable(LitElement) {
   static override styles = styles;
 
   @property({ attribute: false })
+  edgeless!: EdgelessPageBlockComponent;
+
+  @property({ attribute: false })
   frame!: FrameBlockModel;
 
   @property({ attribute: false })
@@ -150,8 +154,14 @@ export class FrameCard extends WithDisposable(LitElement) {
   @query('.frame-card-container')
   containerElement!: HTMLElement;
 
+  @query('.frame-card-title')
+  titleContainer!: HTMLElement;
+
+  @query('.frame-card-title .card-index')
+  titleIndexElement!: HTMLElement;
+
   @query('.frame-card-title .card-content')
-  titleElement!: HTMLElement;
+  titleContentElement!: HTMLElement;
 
   private _dispatchSelectEvent(e: MouseEvent) {
     e.stopPropagation();
@@ -181,6 +191,7 @@ export class FrameCard extends WithDisposable(LitElement) {
 
   private _dispatchDragEvent(e: MouseEvent) {
     e.preventDefault();
+    if (e.button !== 0) return;
 
     const { clientX: startX, clientY: startY } = e;
     const disposeDragStart = on(this.ownerDocument, 'mousemove', e => {
@@ -224,10 +235,15 @@ export class FrameCard extends WithDisposable(LitElement) {
   }
 
   override firstUpdated() {
-    this.disposables.addFromEvent(this.titleElement, 'dblclick', () => {
+    this.disposables.addFromEvent(this.titleContentElement, 'dblclick', () => {
       const titleEditor = new FrameCardTitleEditor();
+      titleEditor.edgeless = this.edgeless;
       titleEditor.frameModel = this.frame;
-      this.titleElement.appendChild(titleEditor);
+      titleEditor.titleContentElement = this.titleContentElement;
+      const left = this.titleIndexElement.offsetWidth + 6;
+      titleEditor.left = left;
+      titleEditor.maxWidth = this.titleContainer.offsetWidth - left - 6;
+      this.titleContainer.appendChild(titleEditor);
     });
   }
 
