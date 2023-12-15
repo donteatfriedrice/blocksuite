@@ -77,6 +77,8 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
   private _autoPanTimer: number | null = null;
   private _dragging = false;
   private _draggingAreaDisposables: DisposableGroup | null = null;
+  private _draggingWithShiftPressed = false;
+  private _selectedElementsBeforeDragging: string[] = [];
 
   override get draggingArea() {
     if (this.dragType === DefaultModeDragType.Selecting) {
@@ -116,8 +118,8 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
     );
   }
 
-  private _setNoneSelectionState() {
-    if (this.selection.empty) return;
+  private _setNoneSelectionState(e: PointerEventState) {
+    if (this.selection.empty || e.keys.shift) return;
 
     this.selection.clear();
     resetNativeSelection(null);
@@ -250,7 +252,7 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
     if (selected) {
       this._handleClickOnSelected(selected, e);
     } else {
-      this._setNoneSelectionState();
+      this._setNoneSelectionState(e);
     }
 
     this._isDoubleClickedOnMask = false;
@@ -401,8 +403,15 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
     const h = Math.abs(startY - curY);
     const bound = new Bound(x, y, w, h);
 
-    const elements = surface.pickByBound(bound);
-    this._setSelectionState([...elements.map(element => element.id)], false);
+    const newSelectedElements = surface
+      .pickByBound(bound)
+      .map(element => element.id);
+
+    if (this._draggingWithShiftPressed) {
+      // merge the old selection and the new selection
+      newSelectedElements.push(...this._selectedElementsBeforeDragging);
+    }
+    this._setSelectionState(newSelectedElements, false);
 
     // Record the last model coordinate for dragging area updating
     this._dragLastModelCoord = [curX, curY];
@@ -447,6 +456,8 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
     this._dragStartModelCoord = [0, 0];
     this._dragLastModelCoord = [0, 0];
     this._edgeless.slots.draggingAreaUpdated.emit();
+    this._draggingWithShiftPressed = false;
+    this._selectedElementsBeforeDragging = [];
   };
 
   async onContainerDragStart(e: PointerEventState) {
@@ -503,6 +514,10 @@ export class DefaultToolController extends EdgelessToolController<DefaultTool> {
     const [startX, startY] = this._surface.toModelCoord(x, y);
     this._dragStartModelCoord = [startX, startY];
     this._dragLastModelCoord = [startX, startY];
+    this._selectedElementsBeforeDragging = this.selection.elements.map(
+      ele => ele.id
+    );
+    this._draggingWithShiftPressed = e.keys.shift;
 
     this._alignBound = this._surface.snap.setupAlignables(this._toBeMoved);
 
