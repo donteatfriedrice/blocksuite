@@ -40,6 +40,7 @@ export class DocEditor extends WithDisposable(ShadowlessElement) {
         @media print {
           doc-editor {
             height: auto;
+            overflow: visible;
           }
         }
 

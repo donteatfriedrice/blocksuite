@@ -39,6 +39,17 @@ export class AffineDocEditor extends WithDisposable(ShadowlessElement) {
         @media print {
           affine-doc-editor {
             height: auto;
+            overflow: visible;
+            -webkit-print-color-adjust: exact !important;
+          }
+
+          .affine-doc-viewport {
+            height: auto;
+            overflow: visible;
+          }
+
+          .affine-doc-viewport::-webkit-scrollbar {
+            display: none;
           }
         }
 
