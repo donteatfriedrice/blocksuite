@@ -6,7 +6,7 @@ import type { SurfaceSelection } from '@blocksuite/block-std';
 import { assertExists, throttle } from '@blocksuite/global/utils';
 import { BlockElement } from '@blocksuite/lit';
 import { type BlockModel } from '@blocksuite/store';
-import { css, html } from 'lit';
+import { css, html, nothing } from 'lit';
 import { customElement, query, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 
@@ -141,6 +141,9 @@ export class EdgelessRootBlockComponent extends BlockElement<
     type: localStorage.defaultTool ?? 'default',
   };
 
+  @state()
+  readonly: boolean = false;
+
   @query('edgeless-block-portal-container')
   rootElementContainer!: EdgelessBlockPortalContainer;
 
@@ -236,6 +239,11 @@ export class EdgelessRootBlockComponent extends BlockElement<
           this.style.cursor = cursor;
         }, 144)
       )
+    );
+    disposables.add(
+      slots.readonlyUpdated.on(readonly => {
+        this.readonly = readonly;
+      })
     );
 
     let canCopyAsPng = true;
@@ -758,11 +766,13 @@ export class EdgelessRootBlockComponent extends BlockElement<
   override renderBlock() {
     this.setAttribute(BLOCK_ID_ATTR, this.model.id);
 
-    const widgets = html`${repeat(
-      Object.entries(this.widgets),
-      ([id]) => id,
-      ([_, widget]) => widget
-    )}`;
+    const widgets = html`${!this.readonly
+      ? repeat(
+          Object.entries(this.widgets),
+          ([id]) => id,
+          ([_, widget]) => widget
+        )
+      : nothing}`;
 
     return html`${this.renderModel(this.surfaceBlockModel)}
       <edgeless-block-portal-container .edgeless=${this}>

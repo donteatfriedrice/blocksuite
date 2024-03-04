@@ -172,7 +172,7 @@ export class EmbedSyncedDocBlockComponent extends EmbedBlockElement<
 
   private _handleFocusEventsInHover = (abortController: AbortController) => {
     const syncedDocEditorHost = this.syncedDocEditorHost;
-    assertExists(syncedDocEditorHost);
+    if (!syncedDocEditorHost) return;
     this.disposables.addFromEvent(syncedDocEditorHost, 'focusin', () => {
       abortController.abort();
     });
