@@ -393,23 +393,32 @@ export function convertDragPreviewDocToEdgeless({
   }
 
   const previewEl = dragPreview.querySelector(cssSelector);
+  console.log('dragPreview', dragPreview);
+  console.log('previewEl', previewEl);
   assertExists(previewEl);
   const rect = previewEl.getBoundingClientRect();
   const { left: viewportLeft, top: viewportTop } = edgelessRoot.viewport;
-  const point = edgelessRoot.service.viewport.toModelCoord(
+  const newViewBound = new Bound(
     (rect.x - viewportLeft) / state.cumulativeParentScale,
-    (rect.y - viewportTop) / state.cumulativeParentScale
+    (rect.y - viewportTop) / state.cumulativeParentScale,
+    previewEl.clientWidth,
+    previewEl.clientHeight
   );
+  const newModelBound =
+    edgelessRoot.service.viewport.toModelBound(newViewBound);
+  console.log('newModelBound', newModelBound);
   const bound = new Bound(
-    point[0],
-    point[1],
-    (width ?? previewEl.clientWidth) * noteScale,
-    (height ?? previewEl.clientHeight) * noteScale
+    newModelBound.x,
+    newModelBound.y,
+    (newModelBound.w ?? width) * noteScale,
+    (newModelBound.h ?? height) * noteScale
   );
 
   const blockModel = blockComponent.model;
   const blockProps = getBlockProps(blockModel);
 
+  console.log('blockProps', blockProps);
+  console.log('bound', bound.serialize());
   edgelessRoot.service.addBlock(
     blockComponent.flavour as EdgelessBlockType,
     {
@@ -418,6 +427,9 @@ export function convertDragPreviewDocToEdgeless({
     },
     edgelessRoot.surfaceBlockModel
   );
+
+  const newBlock = edgelessRoot.service.getElementById(blockModel.id);
+  console.log('newBlock', newBlock);
 
   const doc = blockComponent.doc;
   const host = blockComponent.host;
