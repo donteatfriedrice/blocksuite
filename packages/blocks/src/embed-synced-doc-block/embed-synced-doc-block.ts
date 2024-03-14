@@ -292,7 +292,19 @@ export class EmbedSyncedDocBlockComponent extends EmbedBlockElement<
     assertExists(syncedDocEditorHost);
   };
 
+  private _handleEmbedContainerDblClick = (event: MouseEvent) => {
+    event.stopPropagation();
+    if (this.editorMode === 'page') {
+      return;
+    }
+
+    this.open();
+  };
+
   open = () => {
+    const readonly = this.host.doc.readonly;
+    if (readonly) return;
+
     const syncedDocId = this.model.pageId;
     if (syncedDocId === this.doc.id) return;
 
@@ -542,6 +554,7 @@ export class EmbedSyncedDocBlockComponent extends EmbedBlockElement<
           })}
           style=${containerStyleMap}
           @pointerdown=${this._handlePointerDown}
+          @dblclick=${this._handleEmbedContainerDblClick}
           data-scale=${ifDefined(scale)}
         >
           <div

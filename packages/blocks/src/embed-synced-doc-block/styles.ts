@@ -50,7 +50,7 @@ export const blockStyles = css`
   }
   .affine-embed-synced-doc-container.edgeless {
     display: block;
-    padding: 18px 24px;
+    padding: 0;
     width: 100%;
     height: calc(${EMBED_CARD_HEIGHT.syncedDoc}px + 36px);
   }
