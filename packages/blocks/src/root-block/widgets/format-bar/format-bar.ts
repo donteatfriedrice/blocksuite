@@ -26,6 +26,7 @@ import { isFormatSupported } from '../../../note-block/commands/utils.js';
 import { isRootElement } from '../../../root-block/utils/guard.js';
 import { ConfigRenderer } from './components/config-renderer.js';
 import {
+  type AskAIDropdownConfigItem,
   type FormatBarConfigItem,
   type InlineActionConfigItem,
   type ParagraphActionConfigItem,
@@ -431,6 +432,11 @@ export class AffineFormatBarWidget extends WidgetElement {
 
   addParagraphDropdown() {
     this.configItems.push({ type: 'paragraph-dropdown' });
+    return this;
+  }
+
+  addAskAIDropdown(config: AskAIDropdownConfigItem) {
+    this.configItems.push(config);
     return this;
   }
 

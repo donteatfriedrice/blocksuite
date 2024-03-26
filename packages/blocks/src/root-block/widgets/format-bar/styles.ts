@@ -59,6 +59,45 @@ const paragraphButtonStyle = css`
   }
 `;
 
+const askAIButtonStyle = css`
+  .ask-ai-panel {
+    display: none;
+
+    box-sizing: border-box;
+    position: absolute;
+    padding: 8px;
+    min-width: 294px;
+    max-height: 374px;
+    overflow-y: auto;
+
+    background: var(--affine-background-overlay-panel-color);
+    box-shadow: var(--affine-shadow-2);
+    border-radius: 8px;
+    z-index: var(--affine-z-index-popover);
+  }
+
+  .ask-ai-icon-button svg {
+    color: var(--affine-brand-color);
+  }
+
+  .ask-ai-panel::-webkit-scrollbar {
+    width: 5px;
+    max-height: 100px;
+  }
+
+  .ask-ai-panel::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+  }
+
+  .ask-ai-panel:hover::-webkit-scrollbar-thumb {
+    background-color: var(--affine-black-30);
+  }
+
+  .ask-ai-panel::-webkit-scrollbar-corner {
+    display: none;
+  }
+`;
+
 export const formatBarStyle = css`
   .affine-format-bar-widget {
     box-sizing: border-box;
@@ -66,7 +105,7 @@ export const formatBarStyle = css`
     display: none;
     align-items: center;
     padding: 4px 8px;
-    gap: 4px;
+    gap: 8px;
     height: 40px;
     width: max-content;
 
@@ -84,4 +123,6 @@ export const formatBarStyle = css`
   }
 
   ${paragraphButtonStyle}
+
+  ${askAIButtonStyle}
 `;

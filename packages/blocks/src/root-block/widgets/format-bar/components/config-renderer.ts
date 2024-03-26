@@ -2,6 +2,7 @@ import { html, type TemplateResult } from 'lit';
 
 import { isFormatSupported } from '../../../../note-block/commands/utils.js';
 import type { AffineFormatBarWidget } from '../format-bar.js';
+import { AskAIButton } from './ai-action-panel/ask-ai-button.js';
 import { HighlightButton } from './highlight/highlight-button.js';
 import { ParagraphButton } from './paragraph-button.js';
 
@@ -34,6 +35,9 @@ export function ConfigRenderer(formatBar: AffineFormatBarWidget) {
         }
         case 'paragraph-dropdown':
           template = ParagraphButton(formatBar);
+          break;
+        case 'ask-ai-dropdown':
+          template = AskAIButton(formatBar);
           break;
         case 'inline-action': {
           template = html`<icon-button

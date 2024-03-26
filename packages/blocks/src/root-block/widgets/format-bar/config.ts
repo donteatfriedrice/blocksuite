@@ -39,6 +39,13 @@ export type HighlighterDropdownConfigItem = {
 export type ParagraphDropdownConfigItem = {
   type: 'paragraph-dropdown';
 };
+export type AskAIDropdownConfigItem = {
+  type: 'ask-ai-dropdown';
+  showWhen: (
+    chain: Chain<InitCommandCtx>,
+    formatBar: AffineFormatBarWidget
+  ) => boolean;
+};
 export type InlineActionConfigItem = {
   id: string;
   name: string;
@@ -78,6 +85,7 @@ export type FormatBarConfigItem =
   | DividerConfigItem
   | HighlighterDropdownConfigItem
   | ParagraphDropdownConfigItem
+  | AskAIDropdownConfigItem
   | ParagraphActionConfigItem
   | InlineActionConfigItem
   | CustomConfigItem;
@@ -85,6 +93,19 @@ export type FormatBarConfigItem =
 export function toolbarDefaultConfig(toolbar: AffineFormatBarWidget) {
   toolbar
     .clearConfig()
+    .addAskAIDropdown({
+      type: 'ask-ai-dropdown',
+      showWhen: chain => {
+        const [_, ctx] = chain
+          .getSelectedModels({
+            types: ['block', 'text', 'image'],
+          })
+          .run();
+        const { selectedModels } = ctx;
+        return !!selectedModels && selectedModels.length > 0;
+      },
+    })
+    .addDivider()
     .addParagraphDropdown()
     .addDivider()
     .addTextStyleToggle({
