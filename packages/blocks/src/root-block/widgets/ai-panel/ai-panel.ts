@@ -1,6 +1,6 @@
 import './components/index.js';
 
-import { WidgetElement } from '@blocksuite/block-std';
+import { type EditorHost, WidgetElement } from '@blocksuite/block-std';
 import { assertExists } from '@blocksuite/global/utils';
 import {
   autoUpdate,
@@ -10,6 +10,7 @@ import {
 import { css, html, nothing, type TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
+import { until } from 'lit/directives/until.js';
 
 import type {
   AIPanelAnswerConfig,
@@ -17,7 +18,10 @@ import type {
 } from './components/index.js';
 
 export interface AffineAIPanelWidgetConfig {
-  answerRenderer: (answer: string) => TemplateResult<1>;
+  answerRenderer: (
+    host: EditorHost,
+    answer: string
+  ) => TemplateResult<1> | Promise<TemplateResult<1>>;
   generateAnswer: (props: {
     input: string;
     update: (answer: string) => void;
@@ -214,7 +218,8 @@ export class AffineAIPanelWidget extends WidgetElement {
                   .finish=${false}
                   .config=${config.finishStateConfig}
                 >
-                  ${this.answer && config.answerRenderer(this.answer)}
+                  ${this.answer &&
+                  until(config.answerRenderer(this.host, this.answer))}
                 </ai-panel-answer>
               `
             : nothing}
@@ -227,7 +232,8 @@ export class AffineAIPanelWidget extends WidgetElement {
         'finished',
         () => html`
           <ai-panel-answer .config=${config.finishStateConfig}>
-            ${this.answer && config.answerRenderer(this.answer)}
+            ${this.answer &&
+            until(config.answerRenderer(this.host, this.answer))}
           </ai-panel-answer>
         `,
       ],
