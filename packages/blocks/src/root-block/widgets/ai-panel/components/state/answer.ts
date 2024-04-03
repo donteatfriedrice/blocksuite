@@ -1,5 +1,5 @@
-import { WithDisposable } from '@blocksuite/block-std';
-import { css, html, LitElement, nothing } from 'lit';
+import { ShadowlessElement, WithDisposable } from '@blocksuite/block-std';
+import { css, html, nothing } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 import type {
@@ -15,16 +15,17 @@ export type AIPanelAnswerConfig = {
 };
 
 @customElement('ai-panel-answer')
-export class AIPanelAnswer extends WithDisposable(LitElement) {
+export class AIPanelAnswer extends WithDisposable(ShadowlessElement) {
   static override styles = css`
-    :host {
-      width: 100%;
+    .ai-panel-answer-container {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      width: 630px;
     }
 
-    .answer {
+    .ai-panel-answer {
+      width: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -33,7 +34,7 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
       align-self: stretch;
     }
 
-    .answer-head {
+    .ai-panel-answer-head {
       align-self: stretch;
 
       color: var(
@@ -49,7 +50,7 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
       line-height: 20px; /* 166.667% */
     }
 
-    .answer-body {
+    .ai-panel-answer-body {
       align-self: stretch;
 
       color: var(--light-textColor-textPrimaryColor, #121212);
@@ -65,7 +66,7 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
       line-height: 22px; /* 157.143% */
     }
 
-    .finish-tip {
+    .ai-panel-finish-tip {
       display: flex;
       width: 100%;
       height: 22px;
@@ -77,7 +78,7 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
         var(--textColor-textSecondaryColor, #8e8d91)
       );
 
-      .text {
+      .ai-panel-text {
         display: flex;
         align-items: flex-start;
         gap: 10px;
@@ -91,12 +92,12 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
         line-height: 20px; /* 166.667% */
       }
 
-      .right {
+      .ai-panel-right {
         display: flex;
         align-items: center;
         gap: 16px;
 
-        .copy {
+        .ai-panel-copy {
           display: flex;
           width: 20px;
           height: 20px;
@@ -130,20 +131,22 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
       },
     ];
 
-    return html`
-      <div class="answer">
-        <div class="answer-head">Answer</div>
-        <div class="answer-body">
+    return html` <div class="ai-panel-answer-container" contenteditable="false">
+      <div class="ai-panel-answer">
+        <div class="ai-panel-answer-head">Answer</div>
+        <div class="ai-panel-answer-body">
           <slot></slot>
         </div>
       </div>
       ${this.finish
         ? html`
-            <div class="finish-tip">
+            <div class="ai-panel-finish-tip">
               ${WarningIcon}
-              <div class="text">AI outputs can be misleading or wrong</div>
-              <div class="right">
-                <div class="copy">${CopyIcon}</div>
+              <div class="ai-panel-text">
+                AI outputs can be misleading or wrong
+              </div>
+              <div class="ai-panel-right">
+                <div class="ai-panel-copy">${CopyIcon}</div>
               </div>
             </div>
             ${this.config.responses.length > 0
@@ -162,7 +165,7 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
               : nothing}
           `
         : nothing}
-    `;
+    </div>`;
   }
 }
 

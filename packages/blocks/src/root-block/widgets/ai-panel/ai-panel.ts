@@ -1,6 +1,7 @@
 import './components/index.js';
 
-import { WidgetElement } from '@blocksuite/block-std';
+import type { EditorHost } from '@blocksuite/block-std';
+import { ShadowlessWidgetElement } from '@blocksuite/block-std';
 import { assertExists } from '@blocksuite/global/utils';
 import {
   autoUpdate,
@@ -8,7 +9,7 @@ import {
   type ReferenceElement,
 } from '@floating-ui/dom';
 import { css, html, nothing, type TemplateResult } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, query } from 'lit/decorators.js';
 import { choose } from 'lit/directives/choose.js';
 
 import type {
@@ -17,7 +18,7 @@ import type {
 } from './components/index.js';
 
 export interface AffineAIPanelWidgetConfig {
-  answerRenderer: (answer: string) => TemplateResult<1>;
+  answerRenderer: (host: EditorHost, answer: string) => TemplateResult<1>;
   generateAnswer: (props: {
     input: string;
     update: (answer: string) => void;
@@ -40,35 +41,27 @@ export type AffineAIPanelState =
 export const AFFINE_AI_PANEL_WIDGET = 'affine-ai-panel-widget';
 
 @customElement(AFFINE_AI_PANEL_WIDGET)
-export class AffineAIPanelWidget extends WidgetElement {
+export class AffineAIPanelWidget extends ShadowlessWidgetElement {
   static override styles = css`
-    :host {
+    .ai-panel-container {
       display: flex;
-      width: 100%;
+      width: 630px;
       padding: 8px 12px;
       flex-direction: column;
       justify-content: center;
       align-items: flex-start;
 
       outline: none;
-      border-radius: var(--8, 8px);
-      border: 1px solid var(--light-detailColor-borderColor, #e3e2e4);
-      background: var(--light-background-backgroundOverlayPanelColor, #fbfbfc);
+      border-radius: 8px;
+      border: 1px solid var(--affine-border-color);
+      background: var(--affine-background-overlay-panel-color);
 
       /* light/toolbarShadow */
-      box-shadow: 0px 6px 16px 0px rgba(0, 0, 0, 0.14);
+      box-shadow: var(--affine-shadow-1);
 
       gap: 8px;
-
-      width: 630px;
-      position: absolute;
-      top: 0;
-      left: 0;
-
-      z-index: 1;
-    }
-    :host([data-hidden]) {
-      display: none;
+      overflow: hidden;
+      user-select: none;
     }
   `;
 
@@ -77,6 +70,9 @@ export class AffineAIPanelWidget extends WidgetElement {
 
   @property()
   state: AffineAIPanelState = 'hidden';
+
+  @query('.ai-panel-container')
+  container!: HTMLDivElement;
 
   toggle = (reference: ReferenceElement, input?: string) => {
     if (input) {
@@ -175,18 +171,25 @@ export class AffineAIPanelWidget extends WidgetElement {
     super.connectedCallback();
 
     this.tabIndex = -1;
+    this.style.outline = 'none';
+    this.style.position = 'absolute';
+    this.style.zIndex = '1';
+    this.style.top = '0';
+    this.style.left = '0';
     this.disposables.addFromEvent(this, 'blur', e => {
+      console.log('target: ', e);
       if (!e.relatedTarget || this.contains(e.relatedTarget as Node)) return;
+      console.log('blur:', this);
       this.hide();
     });
   }
 
   override render() {
     if (this.state === 'hidden') {
-      this.dataset.hidden = '';
+      this.style.display = 'none';
       return nothing;
     } else {
-      delete this.dataset.hidden;
+      this.style.display = 'flex';
     }
 
     if (!this.config) return nothing;
@@ -197,46 +200,49 @@ export class AffineAIPanelWidget extends WidgetElement {
         this.focus();
       })
       .catch(console.error);
-    return html`${choose(this.state, [
-      [
-        'input',
-        () =>
-          html`<ai-panel-input
-            .onFinish=${this._inputFinish}
-          ></ai-panel-input>`,
-      ],
-      [
-        'generating',
-        () => html`
-          ${this.answer
-            ? html`
-                <ai-panel-answer
-                  .finish=${false}
-                  .config=${config.finishStateConfig}
-                >
-                  ${this.answer && config.answerRenderer(this.answer)}
-                </ai-panel-answer>
-              `
-            : nothing}
-          <ai-panel-generating
-            .stopGenerating=${this.stopGenerating}
-          ></ai-panel-generating>
-        `,
-      ],
-      [
-        'finished',
-        () => html`
-          <ai-panel-answer .config=${config.finishStateConfig}>
-            ${this.answer && config.answerRenderer(this.answer)}
-          </ai-panel-answer>
-        `,
-      ],
-      [
-        'error',
-        () => html`
-          <ai-panel-error .config=${config.errorStateConfig}></ai-panel-error>
-        `,
-      ],
-    ])}`;
+    return html` <div class="ai-panel-container">
+      ${choose(this.state, [
+        [
+          'input',
+          () =>
+            html`<ai-panel-input
+              .onFinish=${this._inputFinish}
+            ></ai-panel-input>`,
+        ],
+        [
+          'generating',
+          () => html`
+            ${this.answer
+              ? html`
+                  <ai-panel-answer
+                    .finish=${false}
+                    .config=${config.finishStateConfig}
+                  >
+                    ${this.answer &&
+                    config.answerRenderer(this.host, this.answer)}
+                  </ai-panel-answer>
+                `
+              : nothing}
+            <ai-panel-generating
+              .stopGenerating=${this.stopGenerating}
+            ></ai-panel-generating>
+          `,
+        ],
+        [
+          'finished',
+          () => html`
+            <ai-panel-answer .config=${config.finishStateConfig}>
+              ${this.answer && config.answerRenderer(this.host, this.answer)}
+            </ai-panel-answer>
+          `,
+        ],
+        [
+          'error',
+          () => html`
+            <ai-panel-error .config=${config.errorStateConfig}></ai-panel-error>
+          `,
+        ],
+      ])}
+    </div>`;
   }
 }
