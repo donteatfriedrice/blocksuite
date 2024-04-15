@@ -1,18 +1,20 @@
 import { WithDisposable } from '@blocksuite/block-std';
 import { baseTheme } from '@toeverything/theme';
 import { css, html, LitElement, nothing, unsafeCSS } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 
 import type {
   AIItemConfig,
   AIItemGroupConfig,
 } from '../../../../../_common/components/ai-item/index.js';
+import { AIDoneIcon } from '../../../../../_common/icons/ai.js';
 import { WarningIcon } from '../../../../../_common/icons/misc.js';
 import { CopyIcon } from '../../../../../_common/icons/text.js';
 
 export type AIPanelAnswerConfig = {
   responses: AIItemConfig[];
   actions: AIItemGroupConfig[];
+  copyAllowed?: boolean;
 };
 
 @customElement('ai-panel-answer')
@@ -93,7 +95,8 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
         align-items: center;
         gap: 16px;
 
-        .copy {
+        .copy,
+        .copied {
           display: flex;
           width: 20px;
           height: 20px;
@@ -101,10 +104,15 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
           align-items: center;
 
           border-radius: 8px;
+        }
 
-          &:hover {
-            background: var(--affine-hover-color);
-          }
+        .copy:hover {
+          color: var(--affine-icon-color);
+          background: var(--affine-hover-color);
+        }
+
+        .copied {
+          color: var(--affine-brand-color);
         }
       }
     }
@@ -121,6 +129,13 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
 
   @property({ attribute: false })
   finish = true;
+
+  @state()
+  copied = false;
+
+  private _copyAnswer() {
+    console.log('copy answer!');
+  }
 
   override render() {
     const responseGroups: AIItemGroupConfig[] = [
@@ -142,9 +157,16 @@ export class AIPanelAnswer extends WithDisposable(LitElement) {
             <div class="finish-tip">
               ${WarningIcon}
               <div class="text">AI outputs can be misleading or wrong</div>
-              <div class="right">
-                <div class="copy">${CopyIcon}</div>
-              </div>
+              ${this.config.copyAllowed
+                ? html`<div class="right">
+                    ${this.copied
+                      ? html`<div class="copied">${AIDoneIcon}</div>`
+                      : html`<div class="copy" @click=${this._copyAnswer}>
+                          ${CopyIcon}
+                          <affine-tooltip>Copy</affine-tooltip>
+                        </div>`}
+                  </div>`
+                : nothing}
             </div>
             ${this.config.responses.length > 0
               ? html`

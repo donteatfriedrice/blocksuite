@@ -11,6 +11,7 @@ export function buildEdgelessPanelConfig(
     finishStateConfig: {
       responses: buildDefaultResponse(panel),
       actions: [],
+      copyAllowed: true,
     },
     errorStateConfig: {
       upgrade: () => {},

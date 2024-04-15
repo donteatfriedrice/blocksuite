@@ -22,6 +22,7 @@ import {
 import { insertFromMarkdown } from '../_common/markdown-utils.js';
 import { getAIPanel } from '../ai-panel.js';
 import { getEdgelessRootFromEditor } from '../utils/selection-utils.js';
+import { EXCLUDING_COPY_ACTIONS } from './consts.js';
 
 export type CtxRecord = {
   get(): Record<string, unknown>;
@@ -230,5 +231,6 @@ export function actionToResponse<T extends keyof BlockSuitePresets.AIActions>(
       discard(getAIPanel(host)),
     ],
     actions: [],
+    copyAllowed: !EXCLUDING_COPY_ACTIONS.includes(id),
   };
 }

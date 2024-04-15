@@ -4,7 +4,7 @@ import { CopilotClient } from './copilot-client';
 
 const TIMEOUT = 5000;
 
-const backendUrl = 'http://localhost:3010';
+// const backendUrl = 'http://localhost:3010';
 
 function readBlobAsURL(blob: Blob | File) {
   return new Promise<string>((resolve, reject) => {
@@ -34,7 +34,7 @@ export function textToTextStream({
   attachments?: (Blob | File | string)[];
   params?: Record<string, string>;
 }): BlockSuitePresets.TextStream {
-  const client = new CopilotClient(backendUrl);
+  const client = new CopilotClient();
   return {
     [Symbol.asyncIterator]: async function* () {
       const hasAttachments = attachments && attachments.length > 0;

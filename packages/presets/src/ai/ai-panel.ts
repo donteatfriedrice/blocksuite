@@ -164,6 +164,7 @@ export function buildAIPanelConfig(
           ],
         },
       ], // ???
+      copyAllowed: true,
     },
     errorStateConfig: {
       upgrade: () => {},
